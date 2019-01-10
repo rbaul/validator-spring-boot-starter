@@ -1,0 +1,4 @@
+rootProject.name = 'validator-spring-boot-starter'
+
+include 'validator-spring-boot-starter'
+include 'validator-spring-boot-starter-sample'

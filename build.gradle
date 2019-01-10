@@ -1,0 +1,31 @@
+allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+
+	group = 'com.github.rbaul'
+	version = '0.0.1-SNAPSHOT'
+}
+
+subprojects {
+	apply plugin: 'java'
+
+	ext {
+		springBootVersion = '1.5.18.RELEASE'
+	}
+
+	dependencies {
+		compileOnly('org.projectlombok:lombok:1.18.4')
+	}
+
+	sourceCompatibility = JavaVersion.VERSION_1_8
+
+	jar {
+		manifest {
+			attributes("Implementation-Title": project.name,
+					"Implementation-Version": project.version)
+		}
+	}
+
+	compileJava { options.fork = true }
+
+}
