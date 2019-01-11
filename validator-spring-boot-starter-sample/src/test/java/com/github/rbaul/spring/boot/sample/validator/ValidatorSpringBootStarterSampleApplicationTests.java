@@ -1,4 +1,4 @@
-package com.github.rbaul.spring.boot.validator.sample;
+package com.github.rbaul.spring.boot.sample.validator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
