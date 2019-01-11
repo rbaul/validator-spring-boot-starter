@@ -1,7 +1,8 @@
 # Validator Spring Boot Starter
 [Spring Boot](https://spring.io/projects/spring-boot) Starter for `@SpringValidator`. 
- 
 
+[![Build Status](https://travis-ci.com/rbaul/validator-spring-boot-starter.svg?branch=master)](https://travis-ci.com/rbaul/validator-spring-boot-starter)
+[![CodeFactor](https://www.codefactor.io/repository/github/rbaul/validator-spring-boot-starter/badge)](https://www.codefactor.io/repository/github/rbaul/validator-spring-boot-starter)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Features
