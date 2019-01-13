@@ -1,7 +1,9 @@
 # Validator Spring Boot Starter
-[Spring Boot](https://spring.io/projects/spring-boot) Starter for `@SpringValidator`. 
+[Spring Boot](https://spring.io/projects/spring-boot) Starter for `@SpringValidator`.
+> Spring Boot `@SpringValidator` annotation that will help validate arguments more easily. 
 
 [![Build Status](https://travis-ci.com/rbaul/validator-spring-boot-starter.svg?branch=master)](https://travis-ci.com/rbaul/validator-spring-boot-starter)
+[![Sonatype Nexus (Snapshots) badge](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.github.rbaul/validator-spring-boot-starter.svg)](https://oss.sonatype.org/#nexus-search;quick~validator-spring-boot-starter)
 [![CodeFactor](https://www.codefactor.io/repository/github/rbaul/validator-spring-boot-starter/badge)](https://www.codefactor.io/repository/github/rbaul/validator-spring-boot-starter)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -25,7 +27,26 @@ Easy way of validation any method's arguments with using [Spring’s Validator](
 >* Spring Boot 1.5.18
 
 ## Setup
-Repository Soon...
+###### Maven dependency
+```xml
+<dependency>
+    <groupId>com.github.rbaul</groupId>
+    <artifactId>validator-spring-boot-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+###### Gradle dependency
+```groovy
+compile 'com.github.rbaul:validator-spring-boot-starter:1.0.0-SNAPSHOT'
+```
+
+###### Add SONATYPE public repository:
+```groovy
+repositories {
+    maven { url "https://oss.sonatype.org/content/groups/public" }
+}
+```
 
 ## Precondition
 > All `Validator`'s must be `Bean`s
