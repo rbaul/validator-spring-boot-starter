@@ -1,0 +1,43 @@
+modifyPom {
+    project {
+        name 'Validator Spring Boot Starter'
+        description 'Easy way of validation any method\'s arguments with using Spring’s Validator interface'
+        url 'https://github.com/rbaul/validator-spring-boot-starter.git'
+        inceptionYear '2019'
+
+        scm {
+            connection 'scm:git:https://github.com/rbaul/validator-spring-boot-starter.git'
+            developerConnection 'scm:git:https://rbaul@github.com/rbaul/validator-spring-boot-starter.git'
+            url 'https://github.com/rbaul/validator-spring-boot-starter.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'rbaul'
+                name 'Roman Baul'
+                email 'romanbaul@gmail.com'
+            }
+        }
+    }
+
+}
+//
+//extraArchive {
+//    sources = false
+//    tests = false
+//    javadoc = true
+//}
+//
+//nexus {
+//    sign = true
+//    repositoryUrl = 'http://localhost:8081/nexus/content/repositories/internal/'
+//    snapshotRepositoryUrl = 'http://localhost:8081/nexus/content/repositories/internal-snapshots/'
+//}

@@ -3,7 +3,7 @@ allprojects {
 	apply plugin: 'idea'
 
 	group = 'com.github.rbaul'
-	version = '0.0.1-SNAPSHOT'
+	version = '1.0.0-SNAPSHOT'
 }
 
 subprojects {
