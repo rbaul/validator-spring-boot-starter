@@ -29,6 +29,17 @@ Easy way of validation any method's arguments with using [Spring’s Validator](
 ## Setup
 ###### Maven dependency
 ```xml
+<repositories>
+    <repository>
+        <id>Sonatype</id>
+        <name>Sonatype's repository</name>
+        <url>https://oss.sonatype.org/content/groups/public/</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+
 <dependency>
     <groupId>com.github.rbaul</groupId>
     <artifactId>validator-spring-boot-starter</artifactId>
@@ -38,14 +49,11 @@ Easy way of validation any method's arguments with using [Spring’s Validator](
 
 ###### Gradle dependency
 ```groovy
-compile 'com.github.rbaul:validator-spring-boot-starter:1.0.0-SNAPSHOT'
-```
-
-###### Add SONATYPE public repository:
-```groovy
 repositories {
     maven { url "https://oss.sonatype.org/content/groups/public" }
 }
+
+compile 'com.github.rbaul:validator-spring-boot-starter:1.0.0-SNAPSHOT'
 ```
 
 ## Precondition

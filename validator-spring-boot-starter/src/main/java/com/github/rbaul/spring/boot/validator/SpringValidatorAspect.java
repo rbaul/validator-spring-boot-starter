@@ -15,7 +15,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.lang.annotation.Annotation;
@@ -26,14 +25,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * AspectJ to intercept {@link SpringValidator} parameters.
+ * Aspect to {@link SpringValidator} parameters.
  *
  * @author Roman Baul
  */
 @Slf4j
 @Aspect
 @Component
-public class SpringValidatorInterceptor {
+public class SpringValidatorAspect {
 
     /**
      * Pointcut of parameters with {@link SpringValidator}
@@ -45,7 +44,7 @@ public class SpringValidatorInterceptor {
     /**
      * Process of {@link SpringValidator}
      * @param joinPoint Provides reflective access
-     * @throws MethodArgumentNotValidException errors
+     * @throws MethodArgumentNotValidException throw errors from validation if found
      */
     @Before(value = "springValidatorAnnotationOnParamaeter()")
     public void processSpringValidatorAnnotation(JoinPoint joinPoint) throws MethodArgumentNotValidException {
@@ -68,72 +67,100 @@ public class SpringValidatorInterceptor {
                     Class<? extends Validator>[] validators = springValidatorAnnotation.validators();
                     Class<?>[] groups = springValidatorAnnotation.groups();
                     boolean validateConstraintBefore = springValidatorAnnotation.validateConstraintBefore();
-                    boolean firstValidatorThrow = springValidatorAnnotation.firstValidatorThrow();
-                    boolean firstGroupThrow = springValidatorAnnotation.firstGroupThrow();
+                    boolean failFast = springValidatorAnnotation.isFailFast();
 
                     // Constraint validate process
                     if(validateConstraintBefore){
-//                    ApplicationContextAware.class
-//                    LocalValidatorFactoryBean.class;
-//                    SpringValidatorAdapter.class;
-//                    WebMvcValidator.class;
                         LocalValidatorFactoryBean constraintValidator = SpringBeanUtils.getBean(LocalValidatorFactoryBean.class);
                         processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(constraintValidator)));
                     }
 
                     // No mention validators
                     if(validators.length == 0 && groups.length == 0){
-                        Map<String, Validator> beans = SpringBeanUtils.getBeans(Validator.class);
-                        if (beans != null) {
-                            for (Validator validator : beans.values()) {
-                                // Exclude Local and Web
-                                if(validator.supports(methodParameterValue.getClass()) && !(validator instanceof ApplicationContextAware)){
-                                    if(firstValidatorThrow){
-                                        processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
-                                    }
-                                    processValidators.add(validator);
-                                }
-                            }
-                        }
+                        validateAllValidators(methodParameter, methodParameterValue, failFast, processValidators);
                     } else {
 
-                        // Validator process
-                        for (Class<? extends Validator> aClass : validators) {
-                            Validator validator = SpringBeanUtils.getBean(aClass);
-                            if (firstValidatorThrow) {
-                                processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
-                            }
-                            processValidators.add(validator);
-                        }
+                        // Validators process
+                        validatorsProcess(methodParameter, methodParameterValue, validators, failFast, processValidators);
 
                         // Groups process
-                        for (Class<?> group : groups) {
-                            Set<Validator> groupValidators = new HashSet<>();
-                            Map<String, ?> beans = SpringBeanUtils.getBeans(group);
-                            if (beans != null) {
-                                for (Object value : beans.values()) {
-                                    if (value instanceof Validator) {
-                                        Validator validator = (Validator) value;
-                                        if (firstValidatorThrow) {
-                                            processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
-                                        }
-                                        processValidators.add(validator);
-                                        groupValidators.add(validator);
-                                    } else {
-                                        log.error("This bean not of type Validator '{}'", value.getClass());
-                                    }
-                                }
-                            }
-                            if (firstGroupThrow) {
-                                processValidations(methodParameter, methodParameterValue, groupValidators);
-                            }
-                        }
+                        groupsProcess(methodParameter, methodParameterValue, groups, failFast, processValidators);
                     }
 
-                    if(!firstValidatorThrow) {
+                    if(!failFast) {
                         processValidations(methodParameter, methodParameterValue, processValidators);
                     }
 
+                }
+            }
+        }
+    }
+
+    /**
+     * Validator Groups process
+     * @param methodParameter Parameter Information
+     * @param methodParameterValue Parameter Value
+     * @param groups Groups for validate
+     * @param failFast Fail fast
+     * @param handleValidators validators for validate
+     * @throws MethodArgumentNotValidException throw errors from validation if found
+     */
+    private void groupsProcess(MethodParameter methodParameter, Object methodParameterValue, Class<?>[] groups,  boolean failFast, Set<Validator> handleValidators) throws MethodArgumentNotValidException {
+        for (Class<?> group : groups) {
+            Map<String, ?> beans = SpringBeanUtils.getBeans(group);
+            if (beans != null) {
+                for (Object value : beans.values()) {
+                    if (value instanceof Validator) {
+                        Validator validator = (Validator) value;
+                        if (failFast) {
+                            processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
+                        }
+                        handleValidators.add(validator);
+                    } else {
+                        log.error("This bean not of type Validator '{}'", value.getClass());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Validators process
+     * @param methodParameter Parameter Information
+     * @param methodParameterValue Parameter Value
+     * @param validators Validators for validate
+     * @param failFast Fail fast
+     * @param handleValidators validators for validate
+     * @throws MethodArgumentNotValidException throw errors from validation if found
+     */
+    private void validatorsProcess(MethodParameter methodParameter, Object methodParameterValue, Class<? extends Validator>[] validators, boolean failFast, Set<Validator> handleValidators) throws MethodArgumentNotValidException {
+        for (Class<? extends Validator> aClass : validators) {
+            Validator validator = SpringBeanUtils.getBean(aClass);
+            if (failFast) {
+                processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
+            }
+            handleValidators.add(validator);
+        }
+    }
+
+    /**
+     * Validate with all Validators the support this parameter
+     * @param methodParameter Parameter Information
+     * @param methodParameterValue Parameter Value
+     * @param failFast Fail fast
+     * @param handleValidators validators for validate
+     * @throws MethodArgumentNotValidException throw errors from validation if found
+     */
+    private void validateAllValidators(MethodParameter methodParameter, Object methodParameterValue, boolean failFast, Set<Validator> handleValidators) throws MethodArgumentNotValidException {
+        Map<String, Validator> beans = SpringBeanUtils.getBeans(Validator.class);
+        if (beans != null) {
+            for (Validator validator : beans.values()) {
+                // Exclude Local and Web
+                if(validator.supports(methodParameterValue.getClass()) && !(validator instanceof ApplicationContextAware)){
+                    if(failFast){
+                        processValidations(methodParameter, methodParameterValue, new HashSet<>(Collections.singletonList(validator)));
+                    }
+                    handleValidators.add(validator);
                 }
             }
         }
@@ -144,7 +171,7 @@ public class SpringValidatorInterceptor {
      * @param methodParameter parameter
      * @param methodParameterValue value of parameter
      * @param validators set of validators
-     * @throws MethodArgumentNotValidException errors
+     * @throws MethodArgumentNotValidException throw errors from validation if found
      */
     private void processValidations(MethodParameter methodParameter, Object methodParameterValue, Set<Validator> validators) throws MethodArgumentNotValidException {
         String variableNameForParameter = Conventions.getVariableNameForParameter(methodParameter);

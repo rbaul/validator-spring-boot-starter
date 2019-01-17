@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  *
  * @author Roman Baul
  */
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER})
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface SpringValidator {
@@ -42,14 +42,9 @@ public @interface SpringValidator {
     boolean validateConstraintBefore() default false;
 
     /**
-     * First not valid validator throw (default: False)
+     * Fail on first not valid (default: False)
      * @return if throw after first not valid validator
      */
-    boolean firstValidatorThrow() default false;
+    boolean isFailFast() default false;
 
-    /**
-     * First not valid group throw (default: False)
-     * @return if throw after first not valid group
-     */
-    boolean firstGroupThrow() default false;
 }
